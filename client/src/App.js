@@ -9,15 +9,18 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { withStyles } from '@material-ui/styles';
 import Paper from '@mui/material/Paper';
+import { CircularProgress } from '@mui/material';
 
 
 class App extends Component {
 
   state = {
-    customers: ""
+    customers: "",
+    completed: 0
   }
 
   componentDidMount() {
+    this.timer = setInterval(this.progress, 20)
     this.callApi()
       .then(res => this.setState({customers: res}))
       .catch(err => console.log(err))
@@ -28,6 +31,11 @@ class App extends Component {
     const body = await response.json()
     return body
   }
+
+progress = () => {
+  const {completed} = this.state;
+  this.setState({completed: completed >= 100 ? 0 : completed + 1})
+}
 
   render() {
     const {classes} = this.props;
@@ -45,7 +53,7 @@ class App extends Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {this.state.customers ?this.state.customers.map(c => { return (
+            {this.state.customers ? this.state.customers.map(c => { return (
               <Customer
                 key={c.id}
                 id={c.id}
@@ -55,7 +63,14 @@ class App extends Component {
                 gender={c.gender}
                 job={c.job}
               />
-            )}) : ""}
+            )}) : 
+            <TableRow>
+              <TableCell colSpan='6' align='center'>
+                <CircularProgress sx={{}} variant="indeterminate" value={this.state.completed}></CircularProgress>
+              </TableCell>
+            </TableRow>
+            
+            }
           </TableBody>
         </Table>
       </Paper> 
